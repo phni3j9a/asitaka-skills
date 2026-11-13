@@ -67,6 +67,7 @@ const W = 320;
 const H = 180;
 const SIZE = W * H;
 const diffs = []; // diffs[i] = フレーム i と i-1 の差（平均）
+const moves = []; // moves[i] = 同じ差から、画面全体の明るさの変化（暗転など）を除いたもの。物が動いた量
 const means = [];
 const flashes = [];
 await new Promise((resolve) => {
@@ -79,6 +80,15 @@ await new Promise((resolve) => {
 		for (let i = 0; i < SIZE; i++) s += Math.abs(x[i] - y[i]);
 		return s / SIZE;
 	};
+	/** 画面全体が一様に明るく（暗く）なったぶんを除いた差。暗転の途中は 0 に近く、物が動けば大きい。 */
+	const moved = (x, y) => {
+		let sum = 0;
+		for (let i = 0; i < SIZE; i++) sum += x[i] - y[i];
+		const shift = sum / SIZE;
+		let s = 0;
+		for (let i = 0; i < SIZE; i++) s += Math.abs(x[i] - y[i] - shift);
+		return s / SIZE;
+	};
 	p.stdout.on("data", (chunk) => {
 		pending = pending.length ? Buffer.concat([pending, chunk]) : chunk;
 		while (pending.length >= SIZE) {
@@ -89,6 +99,7 @@ await new Promise((resolve) => {
 			for (let i = 0; i < SIZE; i += 7) m += cur[i];
 			means.push(m / Math.ceil(SIZE / 7));
 			diffs.push(prev ? mad(cur, prev) : 0);
+			moves.push(prev ? moved(cur, prev) : 0);
 			// 1 フレームだけの乱れ: 前後とは大きく違うのに、その前後どうしは似ている
 			if (prev2 && diffs[k - 1] > 1.2 && diffs[k] > 1.2 && mad(cur, prev2) < 0.45 * Math.min(diffs[k - 1], diffs[k])) flashes.push((k - 1) / fps);
 			prev2 = prev;
@@ -107,8 +118,12 @@ else ok("1 フレームだけの乱れはない");
 
 // コマ落ち: 動いている最中に、まったく同じフレームが挟まる
 const stutters = [];
-// （暗転の途中のごく暗いフレームは、圧縮で前のフレームと同じになることがあるので数えない）
-for (let i = 2; i < n - 1; i++) if (diffs[i] < 0.004 && diffs[i - 1] > 0.8 && diffs[i + 1] > 0.8 && means[i] > 10) stutters.push(i / fps);
+// 暗転の途中は、明るさが 1 段ずつ階段状に変わるので、同じフレームが続いて見える。これは数えない（物が動いた量で判定する）
+// 圧縮のあとは完全に同じ絵にはならないので、「前後の動きに比べて、ほとんど変わっていない」で判定する
+for (let i = 2; i < n - 1; i++) {
+	const around = Math.min(moves[i - 1], moves[i + 1]);
+	if (around > 0.8 && diffs[i] < Math.max(0.004, around * 0.08) && means[i] > 10) stutters.push(i / fps);
+}
 if (stutters.length) bad(`コマ落ち（同じフレームの繰り返し）: ${stutters.map(sec).join(", ")}`);
 else ok("コマ落ちはない");
 
