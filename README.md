@@ -108,3 +108,5 @@ claude plugin eval . --case edit-existing-video --ablation none --scaffold --all
 ```
 
 `--ablation none` を外すと「スキルなし」の比較用の実行が増え、`--case` を外すと動画を新規に作るケースも走ります。
+
+> このコマンドでの実行は、まだ確かめていません（作成時は、同じ 2 つの依頼を別の方法で試しました）。最初に動かすときは、オプションの過不足がないか `claude plugin eval --help` と見比べてください。
