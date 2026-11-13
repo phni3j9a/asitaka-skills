@@ -56,7 +56,7 @@ cp -R asitaka-skills/skills/product-video ~/.claude/skills/
 - 資料は多いほど正確になります。README、デザインの決まり（色・フォント・ロゴ）、画面の文言、スクリーンショットがあると、画面の再現が実物に近づきます
 - 尺・言語・見せたい機能・避けたい表現があれば、最初に伝えます。なければ Claude が決めて、報告に書きます
 - 直したいときは「18 秒あたりの見出しを〇〇に」「タイルを 1 枚足して」のように、場面や時刻で頼みます
-- 30 秒の動画で 1 時間前後、90 秒で数時間かかります（画面の作り込みと確認に時間を使います）
+- かかる時間の目安は、30〜40 秒の動画で 20〜30 分です（Opus 5.5 での試運転の実績）。長い動画や、画面の作り込みが多い動画は、もっとかかります
 
 ### できあがるもの
 
@@ -101,7 +101,7 @@ node skills/product-video/scripts/new.mjs /tmp/pv-test && cd /tmp/pv-test \
 | ケース | 内容 | 目安 |
 |---|---|---|
 | `edit-existing-video` | 見本動画を 3 か所直す | 5〜10 分 |
-| `intro-video-from-repo` | 架空の製品の資料から、30〜40 秒の紹介動画を新規に作る | 1 時間以上。利用量も多い |
+| `intro-video-from-repo` | 架空の製品の資料から、30〜40 秒の紹介動画を新規に作る | 20〜30 分。利用量も多い |
 
 ```sh
 claude plugin eval . --case edit-existing-video --ablation none --scaffold --allow-tools Bash Write Edit
