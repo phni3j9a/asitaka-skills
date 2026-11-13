@@ -1,0 +1,14 @@
+{
+	"name": "asitaka-skills",
+	"description": "Claude Code のスキル集（製品紹介動画づくりなど）",
+	"owner": {
+		"name": "phni3j9a"
+	},
+	"plugins": [
+		{
+			"name": "asitaka-skills",
+			"source": "./",
+			"description": "製品紹介動画をコードだけで作る product-video スキルを収録"
+		}
+	]
+}
